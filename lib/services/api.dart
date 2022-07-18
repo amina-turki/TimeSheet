@@ -21,9 +21,12 @@ class Api extends ChangeNotifier {
 
     const uri ='http://localhost:5125/api/Interventions/';
     String t = '$id';
-    final Response response = await http.post(Uri.parse('$uri$t'));
+    final Response response = await http.delete(Uri.parse('$uri$t'));
+    print(id);
     if(response.statusCode == 200){
+
       return response;
+
     }else{
       throw Exception("can't load author");
     }

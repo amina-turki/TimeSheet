@@ -5,9 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:time_sheet_flutter/Vue/Menu.dart';
 import 'package:time_sheet_flutter/services/api.dart';
+import 'Model/Meeting.dart';
 import 'Vue/AjouterIntervention.dart';
-import 'model/Meeting.dart';
+import 'Vue/ModifierIntervention.dart';
+
+
 
 void main() =>  runApp(MaterialApp(
 
@@ -27,14 +31,22 @@ class MyApp extends StatelessWidget {
         title: Text("Fiche d'heures"),
         ),
           body: OnlineJsonData(),
+
           floatingActionButton: FloatingActionButton(
             onPressed: (){
-              Navigator.pushNamed(context, '/AjouterIntervention');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>  AjouterIntervention()),
+              );
             },
             tooltip: 'Increment',
             child: const Icon(Icons.add),
           ),
-    )
+
+       drawer:Menu()
+
+        ),
+
     );
   }
 }
@@ -57,6 +69,7 @@ class CalendarExample extends State<OnlineJsonData> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+
       body: Container(
         child: FutureBuilder(
           future: getDataFromWeb(),
@@ -65,10 +78,34 @@ class CalendarExample extends State<OnlineJsonData> {
               return SafeArea(
                 child: Container(
                     child: SfCalendar(
+
                       view: CalendarView.week,
                       initialDisplayDate: DateTime(2022, 07, 03, 9, 0, 0),
                       dataSource: MeetingDataSource(snapshot.data),
-                      onLongPress: longPressed,
+
+                      onTap: (CalendarTapDetails details) {
+
+                        dynamic appointment = details.appointments;
+                        DateTime date = details.date!;
+                        CalendarElement element = details.targetElement;
+
+                        if(appointment != null){
+                          for(var apprme in appointment){
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                //  UpdateAuthor(apprme.id,apprme.iduser,apprme.startTime,apprme.endTime,apprme.eventName),
+                                ModififierIntervention(apprme.id,apprme.iduser,apprme.startTime,apprme.endTime,apprme.eventName),
+                              ),
+                            );
+
+
+                          }
+                        }
+
+                      },
                     )
                 ),
               );
@@ -94,32 +131,24 @@ class CalendarExample extends State<OnlineJsonData> {
     for (var data in jsonData) {
       Meeting meetingData = Meeting(
         eventName: data['description'],
+
         from: _convertDateFromString(
           data['startTime'],
         ),
         to: _convertDateFromString(data['endTime']),
         background: _colorCollection[random.nextInt(9)],
+
+        id: data['id'],
+        iduser: data['id_User'],
+        startTime: data['startTime'],
+        endTime: data['endTime'],
       );
       appointmentData.add(meetingData);
     }
     return appointmentData;
   }
 
-  void longPressed(CalendarLongPressDetails calendarLongPressDetails) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title:Container(child: new Text(" Long pressed")),
-            content:Container(child: new Text("Date cell ")),
-            actions: <Widget>[
-              new FlatButton(onPressed: (){
-                Navigator.of(context).pop();
-              }, child: new Text('close'))
-            ],
-          );
-        });
-  }
+
 
   DateTime _convertDateFromString(String date) {
     return DateTime.parse(date);
@@ -161,10 +190,17 @@ class MeetingDataSource extends CalendarDataSource {
   }
 
   @override
+  String getid(int index) {
+    return appointments![index].id;
+  }
+
+  @override
   Color getColor(int index) {
     return appointments![index].background;
   }
 
 
 }
+
+
 

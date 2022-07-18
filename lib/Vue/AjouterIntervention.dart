@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:time_sheet_flutter/Vue/Menu.dart';
 import 'package:time_sheet_flutter/services/api.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 import '../main.dart';
 
 class AjouterIntervention extends StatelessWidget {
@@ -28,6 +29,7 @@ class FlutterDatePickerExample extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Saisir une nouvelle intervention'),
       ),
+        drawer:Menu(),
       body: Padding(
         padding: const EdgeInsets.all(14.0),
         child: SingleChildScrollView(
@@ -84,6 +86,7 @@ class FlutterDatePickerExample extends StatelessWidget {
                 ' Heure de début ',
                 textAlign: TextAlign.left,
                 style: TextStyle(fontSize: 18.0),
+
               ),
               ValueListenableBuilder<TimeOfDay?>(
                   valueListenable: Starttime,
@@ -145,7 +148,7 @@ class FlutterDatePickerExample extends StatelessWidget {
              ElevatedButton(onPressed: () {
               // Api.addIntervention(iduser.text,Starttime.toString(),Endtime.value,description.text);
 
-               String year = dateSub.value!.year.toString();
+             /*  String year = dateSub.value!.year.toString();
                int month = dateSub.value!.month;
                String day = dateSub.value!.day.toString();
                String date;
@@ -154,15 +157,26 @@ class FlutterDatePickerExample extends StatelessWidget {
                }
                else {
                   date = year + "-" + month.toString() + "-" + day;
-               }
+               }*/
 
-               int hour_heurDebut=Starttime.value!.hour;
+               String ch_tart_Time = DateFormat('yyyy-MM-ddTHH:mm').format( new DateTime(dateSub.value!.year, dateSub.value!.month, dateSub.value!.day, Starttime.value!.hour, Starttime.value!.minute));
+print(ch_tart_Time);
+
+               String ch_Fin_Time = DateFormat('yyyy-MM-ddTHH:mm').format( new DateTime(dateSub.value!.year, dateSub.value!.month, dateSub.value!.day, Endtime.value!.hour, Endtime.value!.minute));
+               print(ch_Fin_Time);
+              /* int hour_heurDebut=Starttime.value!.hour;
                int minute_heurDebut=Starttime.value!.minute;
                String start_Time;
-                if(hour_heurDebut<=9 || minute_heurDebut<=9){
+                if( hour_heurDebut<=9 && minute_heurDebut<=9){
                    start_Time ="0"+hour_heurDebut.toString()+":0"+minute_heurDebut.toString();
-                }else{
-                   start_Time =hour_heurDebut.toString()+":"+minute_heurDebut.toString();
+                }else if(minute_heurDebut<=9){
+                   start_Time =hour_heurDebut.toString()+":0"+minute_heurDebut.toString();
+                }
+                else if(hour_heurDebut<=9){
+                  start_Time ="0"+hour_heurDebut.toString()+":"+minute_heurDebut.toString();
+                }
+                else{
+                  start_Time =hour_heurDebut.toString()+":"+minute_heurDebut.toString();
                 }
                String ch_tart_Time=date+"T"+start_Time+":00.721Z";
 
@@ -171,14 +185,18 @@ class FlutterDatePickerExample extends StatelessWidget {
                int minute_heurFin=Endtime.value!.minute;
                String Fin_Time;
                if(hour_heurFin<=9 && minute_heurFin<=9){
-                 Fin_Time ="0"+hour_heurFin.toString()+":0"+minute_heurDebut.toString();
-               }else{
-                 Fin_Time =hour_heurFin.toString()+":"+minute_heurDebut.toString();
+                 Fin_Time ="0"+hour_heurFin.toString()+":0"+minute_heurFin.toString();
+               }else if ( minute_heurFin<=9){
+                 Fin_Time =hour_heurFin.toString()+":0"+minute_heurFin.toString();
                }
-
-               String ch_Fin_Time=date+"T"+Fin_Time+":00.721Z";
-
-
+              else if(hour_heurFin<=9 ){
+                 Fin_Time ="0"+hour_heurFin.toString()+":"+minute_heurFin.toString();
+               }else
+              {
+                Fin_Time =hour_heurFin.toString()+":"+minute_heurFin.toString();
+              }
+                 String ch_Fin_Time = date + "T" + Fin_Time + ":00.721Z";
+*/
                var unintervention ={
 
                  "id_User" : iduser.text,
@@ -188,14 +206,20 @@ class FlutterDatePickerExample extends StatelessWidget {
                };
 
                Api.addIntervention(unintervention);
+
+               Fluttertoast.showToast(
+                   msg: "Ajouter avec succès",
+                   toastLength: Toast.LENGTH_LONG,
+                   gravity: ToastGravity.CENTER,
+                   timeInSecForIosWeb: 1,
+                   backgroundColor: Colors.red,
+                   textColor: Colors.white,
+                   fontSize: 16.0
+               );
                Navigator.push(
                  context,
                  MaterialPageRoute(builder: (context) =>  MyApp()),
                );
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text('Meeting Created'),
-                  duration: Duration(seconds: 5),));
-
               /* */
               }, child: const Text('Ajouter', style: TextStyle(fontSize: 18)),
                style: ElevatedButton.styleFrom(
@@ -213,7 +237,7 @@ class FlutterDatePickerExample extends StatelessWidget {
   }
 
   String convertDate(DateTime dateTime) {
-    return DateFormat('dd/MM/yyyy').format(dateTime);
+    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
 
 
